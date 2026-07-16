@@ -36,9 +36,7 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(200);
             
-            // Преобразование веса в тип double для sqlite
             entity.Property(e => e.Weight)
-             //   .HasConversion<double>()
                 .IsRequired();
             }
         );

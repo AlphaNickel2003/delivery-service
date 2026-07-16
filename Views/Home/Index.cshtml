@@ -225,36 +225,34 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="OriginCity">Город отправителя</label>
-                        <input type="text" id="OriginCity" name="OriginCity" placeholder="Например, Санкт-Петербург"
-                               required />
+                        <input type="text" id="OriginCity" name="OriginCity" placeholder="Например, Санкт-Петербург" />
                         <span class="error-message" id="OriginCityError">Поле обязательно для заполнения</span>
                     </div>
                     <div class="form-group">
                         <label for="OriginAddress">Адрес отправителя</label>
                         <input type="text" id="OriginAddress" name="OriginAddress"
-                               placeholder="Улица, дом, квартира" required />
+                               placeholder="Улица, дом, квартира" />
                         <span class="error-message" id="OriginAddressError">Поле обязательно для заполнения</span>
                     </div>
                     <div class="form-group">
                         <label for="DestinationCity">Город получателя</label>
-                        <input type="text" id="DestinationCity" name="DestinationCity" placeholder="Например, Анапа"
-                               required />
+                        <input type="text" id="DestinationCity" name="DestinationCity" placeholder="Например, Анапа" />
                         <span class="error-message" id="DestinationCityError">Поле обязательно для заполнения</span>
                     </div>
                     <div class="form-group">
                         <label for="DestinationAddress">Адрес получателя</label>
                         <input type="text" id="DestinationAddress" name="DestinationAddress"
-                               placeholder="Улица, дом, квартира" required />
+                               placeholder="Улица, дом, квартира" />
                         <span class="error-message" id="DestinationAddressError">Поле обязательно для заполнения</span>
                     </div>
                     <div class="form-group">
                         <label for="Weight">Вес (кг)</label>
-                        <input type="number" id="Weight" name="Weight" step="0.01" min="0.01" placeholder="0.00" required />
+                        <input type="number" id="Weight" name="Weight" step="0.01" min="0.01" placeholder="0.00" />
                         <span class="error-message" id="WeightError">Поле обязательно для заполнения</span>
                     </div>
                     <div class="form-group">
                         <label for="PickupDate">Дата забора</label>
-                        <input type="date" id="PickupDate" name="PickupDate" required />
+                        <input type="date" id="PickupDate" name="PickupDate" />
                         <span class="error-message" id="PickupDateError">Поле обязательно для заполнения</span>
                     </div>
 
@@ -268,7 +266,7 @@
         <!--Таблица заказов-->
         <div class="table-section">
             <h2>Активные заказы</h2>
-            <div class="table=wrapper">
+            <div class="table-wrapper">
                 @if (Model.Any())
                 {
                     <table>

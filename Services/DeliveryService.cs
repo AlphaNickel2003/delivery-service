@@ -35,4 +35,22 @@ public class DeliveryService : IDeliveryService
 
         return newOrder;
     }
+
+    public async Task<IEnumerable<OrderRecordResponseDto>> GetAllOrders(CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+
+        var orders = await _context.Orders
+            .Select(o => new OrderRecordResponseDto(
+                        o.Id,
+                        o.OriginCity,
+                        o.OriginAddress,
+                        o.DestinationCity,
+                        o.DestinationAddress,
+                        o.Weight,
+                        o.PickupDate))
+            .ToListAsync();
+
+        return orders;
+    }
 }

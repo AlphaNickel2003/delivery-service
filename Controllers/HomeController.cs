@@ -11,27 +11,17 @@ namespace DeliveryApi.Controllers;
 public class HomeController : Controller
 {
     private readonly IDeliveryService _deliveryService;
-    private readonly AppDbContext _context;
     
-    public HomeController(IDeliveryService deliveryService, AppDbContext context)
+    public HomeController(IDeliveryService deliveryService)
     {
         _deliveryService = deliveryService;
-        _context = context;
     }
 
     public async Task<IActionResult> Index()
     {
-        var orders = await _context.Orders
-            .Select(o => new OrderRecordResponseDto(
-                        o.Id,
-                        o.OriginCity,
-                        o.OriginAddress,
-                        o.DestinationCity,
-                        o.DestinationAddress,
-                        o.Weight,
-                        o.PickupDate))
-            .ToListAsync();
-        return View(orders);
+        var ct = CancellationToken.None;
+        var allOrders = await _deliveryService.GetAllOrders(ct);
+        return View(allOrders);
     }
 
     [HttpPost]
@@ -39,17 +29,8 @@ public class HomeController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var orders = await _context.Orders
-                .Select(o => new OrderRecordResponseDto(
-                            o.Id,
-                            o.OriginCity,
-                            o.OriginAddress,
-                            o.DestinationCity,
-                            o.DestinationAddress,
-                            o.Weight,
-                            o.PickupDate))
-                .ToListAsync();
-            return View("Index", orders);
+            var allOrders = await _deliveryService.GetAllOrders(ct);
+            return View("Index", allOrders);
         }
 
         await _deliveryService.CreateOrderAsync(dto, ct);
