@@ -7,8 +7,4 @@ namespace DeliveryApi.Services;
 public interface IDeliveryService
 {
     Task <OrderRecord> CreateOrderAsync(CreateOrderRecordDto dto, CancellationToken ct);
-
-   /* Task <IEnumerable<OrderRecord>> GetAllRecordsAsync();
-
-    Task <OrderRecord> GetOrderByClickAsync();*/
 }

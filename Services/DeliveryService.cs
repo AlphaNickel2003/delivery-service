@@ -1,6 +1,7 @@
 using DeliveryApi.Data;
 using DeliveryApi.DTOs;
 using DeliveryApi.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,26 +24,15 @@ public class DeliveryService : IDeliveryService
         {
             OriginCity = dto.OriginCity,
             OriginAddress = dto.OriginAddress,
-            DestinationCity = dto.DestinationAddress,
+            DestinationCity = dto.DestinationCity,
             DestinationAddress = dto.DestinationAddress,
             Weight = dto.Weight,
             PickupDate = dto.PickupDate
         };
 
         await _context.Orders.AddAsync(newOrder, ct);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(ct);
 
         return newOrder;
     }
-
-    //TODO: Дописать методы к фронту
-  /*  public async Task<IEnumerable<OrderRecord>> GetAllRecordsAsync()
-    {
-        
-    }
-
-    public async Task<OrderRecord> GetOrderByClickAsync()
-    {
-        
-    }*/
 }

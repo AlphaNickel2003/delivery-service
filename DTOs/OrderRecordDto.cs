@@ -7,6 +7,16 @@ public record CreateOrderRecordDto(
     string OriginAddress,
     string DestinationCity,
     string DestinationAddress,
-    decimal Weight,
+    double Weight,
+    DateTime PickupDate
+);
+
+public record OrderRecordResponseDto(
+    int Id,
+    string OriginCity,
+    string OriginAddress,
+    string DestinationCity,
+    string DestinationAddress,
+    double Weight,
     DateTime PickupDate
 );

@@ -38,7 +38,7 @@ public class AppDbContext : DbContext
             
             // Преобразование веса в тип double для sqlite
             entity.Property(e => e.Weight)
-                .HasConversion<double>()
+             //   .HasConversion<double>()
                 .IsRequired();
             }
         );

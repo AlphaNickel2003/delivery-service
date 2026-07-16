@@ -1,0 +1,367 @@
+@model IEnumerable<DeliveryApi.DTOs.OrderRecordResponseDto>
+
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Оформление доставки</title>
+    <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #f5f7fa;
+                padding: 30px;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px 30px;
+                border-radius: 12px;
+                margin-bottom: 30px;
+            }
+
+            .header h1 {
+                font-weight: 300;
+                letter-spacing: 1px;
+            }
+
+            /*Форма*/
+            .form-section {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+                margin-bottom: 30px;
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+                gap: 20px;
+                align-items: end;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .form-group label {
+                font-size: 14px;
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 6px;
+            }
+
+            .form-group input {
+                padding: 10px 14px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 14px;
+                transition: 0.25s;
+                width: 100%;
+            }
+
+            .form-group input:focus {
+                border-color: #667eea;
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            }
+
+            .form-group input.input-error {
+                border-color: #fc8181;
+            }
+
+            .form-group .error-message {
+                color: #fc8181;
+                font-size: 12px;
+                margin-top: 4px;
+                display: none;
+            }
+
+            .form-group .error-message.show {
+                display: block;
+            }
+
+            .btn-add {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 10px 30px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: 0.25s;
+                height: 42px;
+                min-width: 120px;
+                align-self: end;
+            }
+
+            .btn-add:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn-add:active {
+                transform: translateY(0);
+            }
+
+            /*Таблица заказов*/
+            .table-section {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+                overflow-x: auto;
+                padding: 20px;
+            }
+
+            .table-section h2 {
+                font-size: 18px;
+                color: #2d3748;
+                margin-bottom: 16px;
+                font-weight: 600;
+            }
+
+            .table-wrapper {
+                overflow-x: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+
+            thead {
+                background: #f7fafc;
+            }
+
+            th {
+                padding: 12px 16px;
+                text-align: left;
+                font-weight: 600;
+                color: #4a5568;
+                border-bottom: 2px solid #e2e8f0;
+                white-space: nowrap;
+            }
+
+            td {
+                padding: 12px 16px;
+                border-bottom: 1px solid #edf2f7;
+                color: #2d3748;
+            }
+
+            tbody tr:hover {
+                background: #f7fafc;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 40px;
+                color: #a0aec0;
+                font-size: 16px;
+            }
+
+            .order-id {
+                font-weight: 600;
+                color: #667eea;
+            }
+
+            .order-weight {
+                font-weight: 600;
+            }
+
+            <!--Адаптив-->
+            @@media (max-width: 768px) {
+                body {
+                    padding: 15px;
+                }
+
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .header h1 {
+                    font-size: 22px;
+                }
+
+                th,
+                td {
+                    padding: 8px 10px;
+                    font-size: 13px;
+                }
+
+                .btn-add {
+                    width: 100%;
+                    margin-top: 10px;
+                }
+            }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Оформление доставки</h1>
+        </div>
+
+        <!--Форма заполнения данных-->
+        <div class="form-section">
+            <form id="orderForm" method="post" action="/Home/CreateOrder">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="OriginCity">Город отправителя</label>
+                        <input type="text" id="OriginCity" name="OriginCity" placeholder="Например, Санкт-Петербург"
+                               required />
+                        <span class="error-message" id="OriginCityError">Поле обязательно для заполнения</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="OriginAddress">Адрес отправителя</label>
+                        <input type="text" id="OriginAddress" name="OriginAddress"
+                               placeholder="Улица, дом, квартира" required />
+                        <span class="error-message" id="OriginAddressError">Поле обязательно для заполнения</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="DestinationCity">Город получателя</label>
+                        <input type="text" id="DestinationCity" name="DestinationCity" placeholder="Например, Анапа"
+                               required />
+                        <span class="error-message" id="DestinationCityError">Поле обязательно для заполнения</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="DestinationAddress">Адрес получателя</label>
+                        <input type="text" id="DestinationAddress" name="DestinationAddress"
+                               placeholder="Улица, дом, квартира" required />
+                        <span class="error-message" id="DestinationAddressError">Поле обязательно для заполнения</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="Weight">Вес (кг)</label>
+                        <input type="number" id="Weight" name="Weight" step="0.01" min="0.01" placeholder="0.00" required />
+                        <span class="error-message" id="WeightError">Поле обязательно для заполнения</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="PickupDate">Дата забора</label>
+                        <input type="date" id="PickupDate" name="PickupDate" required />
+                        <span class="error-message" id="PickupDateError">Поле обязательно для заполнения</span>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn-add">Оформить заказ</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!--Таблица заказов-->
+        <div class="table-section">
+            <h2>Активные заказы</h2>
+            <div class="table=wrapper">
+                @if (Model.Any())
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Город отправителя</th>
+                                <th>Адрес отправителя</th>
+                                <th>Город получателя</th>
+                                <th>Адрес получателя</th>
+                                <th>Вес (кг)</th>
+                                <th>Дата забора</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td class="order-id">#@order.Id</td>
+                                    <td>@order.OriginCity</td>
+                                    <td>@order.OriginAddress</td>
+                                    <td>@order.DestinationCity</td>
+                                    <td>@order.DestinationAddress</td>
+                                    <td class="order-weight">@order.Weight.ToString("F2")</td>
+                                    <td>@order.PickupDate.ToString("dd.MM.yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        Пока что заказов нет, заполните форму выше и нажмите кнопку "Добавить"
+                    </div>
+                }
+            </div>
+        </div>
+
+    <script>
+        //Клиентская валидация
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            let isValid = true;
+            const fields = [
+                { id: 'OriginCity', errorId: 'OriginCityError' },
+                { id: 'OriginAddress', errorId: 'OriginAddressError' },
+                { id: 'DestinationCity', errorId: 'DestinationCityError' },
+                { id: 'DestinationAddress', errorId: 'DestinationAddressError' },
+                { id: 'Weight', errorId: 'WeightError' },
+                { id: 'PickupDate', errorId: 'PickupDateError' }
+            ];
+
+            fields.forEach(field => {
+                const input = document.getElementById(field.id);
+                const error = document.getElementById(field.errorId);
+                if (!input.value.trim()) {
+                    input.classList.add('input-error');
+                    error.classList.add('show');
+                    isValid = false;
+                } else {
+                    input.classList.remove('input-error');
+                    error.classList.remove('show');
+                }
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+
+        // Сброс ошибки при вводе 1го символа
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                const errorId = this.id + 'Error';
+                const error = document.getElementById(errorId);
+                if (this.value.trim()) {
+                    this.classList.remove('input-error');
+                    if (error) error.classList.remove('show');
+                }
+            });
+        });
+
+        // Ограничитель даты - не ранее сегодняшнего числа
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('PickupDate');
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+            
+            // При обновлении страницы по умолчанию ставится сегодняшняя дата
+            if (!dateInput.value) {
+                dateInput.value = today;
+            }
+        });
+    </script>
+</body>
+</html>

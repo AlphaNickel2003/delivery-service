@@ -20,7 +20,7 @@ public class OrderRecord{
     public string DestinationAddress{get; set;} = string.Empty;
 
     // Вес груза
-    public decimal Weight{get; set;}
+    public double Weight{get; set;}
 
     // Дата забора груза
     public DateTime PickupDate{get; set;}

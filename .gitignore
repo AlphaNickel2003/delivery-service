@@ -13,6 +13,11 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+## Database
+*.db
+*.db-shm
+*.db-wal
+
 ## Visual Studio files
 *.user
 *.suo
