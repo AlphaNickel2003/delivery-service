@@ -8,7 +8,7 @@ public record CreateOrderRecordDto(
     [Required, MaxLength(200)] string OriginAddress,
     [Required, MaxLength(50)] string DestinationCity,
     [Required, MaxLength(200)] string DestinationAddress,
-    [Required, Range(0.1, 100000)] double Weight,
+    [Required, Range(0.01, 100000)] double Weight,
     [Required] DateTime PickupDate
 );
 

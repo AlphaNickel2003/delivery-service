@@ -165,6 +165,15 @@
                 color: #2d3748;
             }
 
+            tbody tr {
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            tbody tr:hover {
+                background: #f0f4ff;
+            }
+
             tbody tr:hover {
                 background: #f7fafc;
             }
@@ -209,6 +218,154 @@
                     width: 100%;
                     margin-top: 10px;
                 }
+
+                .modal-container {
+                    width: 95%;
+                    max-height: 90vh;
+                }
+
+                .modal-header {
+                    padding: 16px 20px;
+                }
+
+                .modal-header h2 {
+                    font-size: 18px;
+                }
+
+                .modal-body {
+                    padding: 20px;
+                }
+
+                .detail-row {
+                    flex-direction: column;
+                    gap: 4px;
+                    padding: 12px 0;
+                }
+
+                .detail-label {
+                    min-width: auto;
+                    font-size: 13px;
+                }
+
+                .detail-value {
+                    font-size: 14px;
+                }
+            }
+
+            /* Модальное окно */
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(4px);
+                display: none;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+                animation: fadeIn 0.3s ease;
+            }
+
+            .modal-overlay.active {
+                display: flex;
+            }
+
+            .modal-container {
+                background: white;
+                border-radius: 16px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                animation: slideIn 0.3s ease;
+            }
+
+            .modal-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 20px 30px;
+                border-radius: 16px 16px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            }
+
+            .modal-header h2 {
+                font-weight: 300;
+                letter-spacing: 0.5px;
+                margin: 0;
+                font-size: 22px;
+            }
+
+            .modal-close {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 36px;
+                cursor: pointer;
+                padding: 0 8px;
+                transition: 0.3s;
+                line-height: 1;
+                opacity: 0.8;
+            }
+
+            .modal-close:hover {
+                opacity: 1;
+                transform: rotate(90deg);
+            }
+
+            .modal-body {
+                padding: 30px;
+                background: #f8fafc;
+                border-radius: 0 0 16px 16px;
+            }
+
+            .detail-row {
+                display: flex;
+                padding: 14px 0;
+                border-bottom: 1px solid #e2e8f0;
+                gap: 20px;
+            }
+
+            .detail-row:last-child {
+                border-bottom: none;
+            }
+
+            .detail-label {
+                font-weight: 600;
+                color: #4a5568;
+                min-width: 160px;
+                flex-shrink: 0;
+                font-size: 14px;
+            }
+
+            .detail-value {
+                color: #2d3748;
+                word-break: break-word;
+                font-size: 14px;
+            }
+
+            /* Анимации */
+            @@keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            @@keyframes slideIn {
+                from { 
+                    opacity: 0;
+                    transform: translateY(-30px) scale(0.95);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
             }
     </style>
 </head>
@@ -251,7 +408,7 @@
                         <span class="error-message" id="WeightError">Поле обязательно для заполнения</span>
                     </div>
                     <div class="form-group">
-                        <label for="PickupDate">Дата забора</label>
+                        <label for="PickupDate">Дата забора груза</label>
                         <input type="date" id="PickupDate" name="PickupDate" />
                         <span class="error-message" id="PickupDateError">Поле обязательно для заполнения</span>
                     </div>
@@ -278,13 +435,13 @@
                                 <th>Город получателя</th>
                                 <th>Адрес получателя</th>
                                 <th>Вес (кг)</th>
-                                <th>Дата забора</th>
+                                <th>Дата забора груза</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var order in Model)
                             {
-                                <tr>
+                                <tr data-order-id="@order.Id">
                                     <td class="order-id">#@order.Id</td>
                                     <td>@order.OriginCity</td>
                                     <td>@order.OriginAddress</td>
@@ -306,8 +463,44 @@
             </div>
         </div>
 
-    <script>
-        //Клиентская валидация
+        <!-- Модальное окно просмотра заказа -->
+        <div id="orderModal" class="modal-overlay">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2>Детали заказа #<span id="modalOrderId"></span></h2>
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Город отправителя:</span>
+                        <span class="detail-value" id="modalOriginCity"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Адрес отправителя:</span>
+                        <span class="detail-value" id="modalOriginAddress"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Город получателя:</span>
+                        <span class="detail-value" id="modalDestinationCity"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Адрес получателя:</span>
+                        <span class="detail-value" id="modalDestinationAddress"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Вес:</span>
+                        <span class="detail-value" id="modalWeight"></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Дата забора:</span>
+                        <span class="detail-value" id="modalPickupDate"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        // ===== 1. КЛИЕНТСКАЯ ВАЛИДАЦИЯ ФОРМЫ =====
         document.getElementById('orderForm').addEventListener('submit', function(e) {
             let isValid = true;
             const fields = [
@@ -337,7 +530,7 @@
             }
         });
 
-        // Сброс ошибки при вводе 1го символа
+        // ===== 2. СБРОС ОШИБОК ПРИ ВВОДЕ =====
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('input', function() {
                 const errorId = this.id + 'Error';
@@ -349,15 +542,116 @@
             });
         });
 
-        // Ограничитель даты - не ранее сегодняшнего числа
-        document.addEventListener('DOMContentLoaded', function() {
+        // ===== 3. УСТАНОВКА ДАТЫ =====
+        function setDefaultDate() {
             const dateInput = document.getElementById('PickupDate');
             const today = new Date().toISOString().split('T')[0];
+            
+            // Устанавливаем минимальную дату - сегодня
             dateInput.setAttribute('min', today);
             
-            // При обновлении страницы по умолчанию ставится сегодняшняя дата
+            // Если поле пустое, ставим сегодняшнюю дату
             if (!dateInput.value) {
                 dateInput.value = today;
+            }
+        }
+
+        // ===== 4. РАБОТА С МОДАЛЬНЫМ ОКНОМ =====
+        function openOrderModal(orderId) {
+            // Показываем индикатор загрузки
+            document.getElementById('modalOrderId').textContent = '...';
+            document.getElementById('modalOriginCity').textContent = 'Загрузка...';
+            document.getElementById('modalOriginAddress').textContent = '';
+            document.getElementById('modalDestinationCity').textContent = '';
+            document.getElementById('modalDestinationAddress').textContent = '';
+            document.getElementById('modalWeight').textContent = '';
+            document.getElementById('modalPickupDate').textContent = '';
+
+            // Показываем модальное окно
+            const modal = document.getElementById('orderModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Загружаем данные через AJAX
+            fetch(`/Home/GetOrder?id=${orderId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Заказ не найден');
+                    }
+                    return response.json();
+                })
+                .then(order => {
+                    // Заполняем данные
+                    document.getElementById('modalOrderId').textContent = order.id;
+                    document.getElementById('modalOriginCity').textContent = order.originCity;
+                    document.getElementById('modalOriginAddress').textContent = order.originAddress;
+                    document.getElementById('modalDestinationCity').textContent = order.destinationCity;
+                    document.getElementById('modalDestinationAddress').textContent = order.destinationAddress;
+                    document.getElementById('modalWeight').textContent = order.weight.toFixed(2) + ' кг';
+                    
+                    // Форматируем дату
+                    const date = new Date(order.pickupDate);
+                    document.getElementById('modalPickupDate').textContent = date.toLocaleDateString('ru-RU', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                })
+                .catch(error => {
+                    console.error('Ошибка загрузки заказа:', error);
+                    alert('Не удалось загрузить данные заказа. Пожалуйста, попробуйте позже.');
+                    closeModal();
+                });
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('orderModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // ===== 5. НАЗНАЧЕНИЕ ОБРАБОТЧИКОВ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Устанавливаем дату
+            setDefaultDate();
+
+            // Назначаем обработчики на строки таблицы
+            const rows = document.querySelectorAll('tbody tr');
+            console.log('Найдено строк таблицы:', rows.length); // Для отладки
+            
+            rows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    // Получаем ID из data-атрибута
+                    const orderId = this.getAttribute('data-order-id');
+                    console.log('Клик по строке, ID:', orderId); // Для отладки
+                    
+                    if (orderId) {
+                        openOrderModal(orderId);
+                    } else {
+                        console.warn('data-order-id не найден у строки');
+                    }
+                });
+            });
+
+            // Закрытие по клику на оверлей (фон)
+            const modal = document.getElementById('orderModal');
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+
+            // Закрытие по клавише ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Дополнительно: обработчик для кнопки закрытия (на случай, если не сработает onclick)
+            const closeBtn = document.querySelector('.modal-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
             }
         });
     </script>
